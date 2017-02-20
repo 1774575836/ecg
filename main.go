@@ -7,7 +7,7 @@ int ecg_decode(unsigned char *buff, unsigned int buff_size)
 {
 	int i;
 
-	printf("decode ECG buffer: %p, size %d\n", buff, buff_size);
+	printf(" decode ECG buffer: %p, size %d\n ", buff, buff_size);
 #if 1
 	for(i = 0; i < buff_size; i++) {
 		printf("%02x ", buff[i]);
@@ -42,8 +42,8 @@ func main() {
 	checkError(err)
 
 	totalPackets := 0
+	data := make([]byte, 4096)
 	for {
-		data := make([]byte, 4096)
 		read, remoteAddr, err := conn.ReadFromUDP(data)
 		if err != nil {
 			fmt.Println("Read from UDP failed!", err)
