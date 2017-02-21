@@ -16,7 +16,7 @@ PACKET_TYPE_DATA = 0xD1,
 PACKET_TYPE_ARRHY_INFO = 0xD3,
 PACKET_TYPE_SLAVE_TO_MASTER_SETTINGS = 0xD4,
 PACKET_TYPE_MASTER_TO_SLAVE_SETTINGS = 0xD5,
-PACKET_TYPE_COMMAND_RESPONSE = 0xDa,
+PACKET_TYPE_COMMAND_RESPONSE = 0xDA,
 };
 
 #define PKT_HEADER_SIZE (5)
@@ -52,14 +52,19 @@ COMMAND_DIRECTION_LAST
 
 enum{
 COMMAND_MASTER_REQUEST_DATA = 0x01,
-COMMAND_SLAVE_RESPONSE_DATA_REQUEST = 0x02,
+COMMAND_SLAVE_RESPONSE_REQUEST = 0x02,
 COMMAND_MASTER_REQUEST_STOP = 0x04,
 COMMAND_MASTER_REQUEST_DATA_RESEND = 0x05,
-COMMAND_SLAVE_RESPONSE_DATA_REQUEST_NOT_EXIST = 0x06,
+COMMAND_SLAVE_RESPONSE_REQUEST_NOT_EXIST = 0x06,
 COMMAND_MASTER_REQUEST_SETTINGS = 0x07,
 COMMAND_MASTER_REQUEST_NIBP = 0x08,
 COMMAND_MASTER_REQUEST_NIBP_STOP = 0x09,
 };
+
+typedef{
+	unsigned char port_h;
+	unsigned char port_l;
+}command_request_data_t;
 
 typedef struct{
     unsigned char module;
@@ -69,20 +74,10 @@ typedef struct{
 
 //PACKET_TYPE_COMMAND_RESPONSE
 typedef struct{
-    union{
-        unsigned char B0;
-        unsigned char direction;
-    }B0;
-
-    union{
-        unsigned char B1;
-        unsigned char command_h;
-    }B1;
-
-    union{
-        unsigned char B2;
-        unsigned char command_l;
-    }B2;
+    unsigned char B0;
+    unsigned char direction;
+    unsigned char command_h;
+    unsigned char command_l;
     command_data_t data;
 }command_packet_t;
 

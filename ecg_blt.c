@@ -9,87 +9,87 @@ void print_broadcast_packet_info(broadcast_packet_t *broad)
 {
 	printf("Dump broadcast packet info:\n");
 	printf(" packet size: 7\n");
-	printf("Software version %d.%d\n", broad->config.MAJOR, broad->config.MINOR);
+	printf(" Software version %d.%d\n", broad->config.MAJOR, broad->config.MINOR);
 	if(broad->config.ICG) {
-		printf("with ICG\n");
+		printf(" with ICG\n");
 	}
 	if(broad->config.RESP) {
-		printf("with RESP\n");
+		printf(" with RESP\n");
 	}
 	if(broad->config.PULSE) {
-		printf("with PULSE\n");
+		printf(" with PULSE\n");
 	}
 	if(broad->config.SPO2) {
-		printf("with SPO2\n");
+		printf(" with SPO2\n");
 	}
 	if(broad->config.NIBP) {
-		printf("with NIBP\n");
+		printf(" with NIBP\n");
 	}
 	if(broad->config.ECG12) {
-		printf("with ECG12\n");
+		printf(" with ECG12\n");
 	}
 	if(broad->config.ECG5) {
-		printf("with ECG5\n");
+		printf(" with ECG5\n");
 	}
 	if(broad->config.ECG3) {
-		printf("with ECG3\n");
+		printf(" with ECG3\n");
 	}
 	if(broad->config.IBP1){
-		printf("with IBP1\n");
+		printf(" with IBP1\n");
 	}
 	if(broad->config.IBP2){
-		printf("with IBP2\n");
+		printf(" with IBP2\n");
 	}
 	if(broad->config.IBP3){
-		printf("with IBP3\n");
+		printf(" with IBP3\n");
 	}
 	if(broad->config.IBP4){
-		printf("with IBP4\n");
+		printf(" with IBP4\n");
 	}
 	if(broad->config.IBP5){
-		printf("with IBP5\n");
+		printf(" with IBP5\n");
 	}
 	if(broad->config.IBP6){
-		printf("with IBP6\n");
+		printf(" with IBP6\n");
 	}
 	if(broad->config.IBP7){
-		printf("with IBP7\n");
+		printf(" with IBP7\n");
 	}
 	if(broad->config.IBP8){
-		printf("with IBP8\n");
+		printf(" with IBP8\n");
 	}
 	if(broad->config.TEMP1){
-		printf("with TEMP1\n");
+		printf(" with TEMP1\n");
 	}
 	if(broad->config.TEMP2){
-		printf("with TEMP2\n");
+		printf(" with TEMP2\n");
 	}
 	if(broad->config.TEMP3){
-		printf("with TEMP3\n");
+		printf(" with TEMP3\n");
 	}
 	if(broad->config.TEMP4){
-		printf("with TEMP4\n");
+		printf(" with TEMP4\n");
 	}
 	if(broad->config.TEMP5){
-		printf("with TEMP5\n");
+		printf(" with TEMP5\n");
 	}
 	if(broad->config.TEMP6){
-		printf("with TEMP6\n");
+		printf(" with TEMP6\n");
 	}
 	if(broad->config.TEMP7){
-		printf("with TEMP7\n");
+		printf(" with TEMP7\n");
 	}
 	if(broad->config.TEMP8){
-		printf("with TEMP8\n");
+		printf(" with TEMP8\n");
 	}
 	if(broad->config.CO2){
-		printf("with CO2\n");
+		printf(" with CO2\n");
 	}
 	if(broad->config.GAS){
-		printf("with GAS\n");
+		printf(" with GAS\n");
 	}
 	if(broad->config.CO){
-		printf("with CO\n");
+		printf(" with CO\n");
 	}
 }
 
@@ -142,26 +142,89 @@ void print_temp_config_packet_info(TEMP_config_t *temp)
 void print_monitor_config_packet_info(MONITOR_config_t *monitor)
 {
 	printf("Dump monitor config packet info:\n");
+	printf(" packet size: %d\n", monitor->length_h<<8|monitor->length_l);
+	printf(" heart beat sound level %d\n", monitor->heart_beat_sound_level);
+	printf(" alarm sound level %d\n", monitor->alarm_sound_level);
 }
 
 void print_resp_config_packet_info(RESP_config_t *resp)
 {
 	printf("Dump resp config packet info:\n");
+	printf(" packet size: %d\n", resp->length_h<<8|resp->length_l);
+	printf(" source %s\n", resp->source==0?"AUTO":(resp->source==1?"ECG":"CO2"));
+	printf(" amplify %d\n", resp->amplify);
+	printf(" suffocate time %d\n", resp->suff_time);
+	printf(" suffocate %s\n",resp->suff_onoff?"ON":"OFF");
+	printf(" breath sensitive value: %d\n", resp->sense_value);
+	printf(" alarm level %d\n", resp->alarm_level);
+	printf(" alarm high level %d\n", resp->alarm_high_level_8);
+	printf(" alarm low level %d\n", resp->alarm_low_level_8);
 }
 
 void print_pulse_config_packet_info(PULSE_config_t *pulse)
 {
 	printf("Dump pulse config packet info:\n");
+	printf(" packet size: %d\n", pulse->length_h<<8|pulse->length_l);
+	printf(" alarm %s\n", pulse->alarm_onoff?"on":"off");
+	printf(" alarm level %d\n", pulse->alarm_level);
+	printf(" source %d\n", pulse->source);
+	printf(" alarm high level %d\n", pulse->alarm_high_level_4 << 4 | pulse->alarm_high_level_8);
+	printf(" alarm low level %d\n", pulse->alarm_low_level_4 << 4 | pulse->alarm_low_level_8);
+
 }
 
 void print_spo2_config_packet_info(SPO2_config_t *spo2)
 {
 	printf("Dump spo2 config packet info:\n");
+	printf(" packet size: %d\n", spo2->length_h<<8|spo2->length_l);
+	printf(" alarm %s\n", spo2->alarm_onoff?"on":"off");
+	printf(" alarm level %d\n", spo2->alarm_level);
+	printf(" alarm high level %d\n", spo2->alarm_high_level_8);
+	printf(" alarm low level %d\n", spo2->alarm_low_level_8);
 }
 
 void print_nibp_config_packet_info(NIBP_config_t *nibp)
 {
 	printf("Dump nibp config packet info:\n");
+	printf(" packet size: %d\n", nibp->length_h<<8|nibp->length_l);
+	printf(" mode %s\n", nibp->mode==0?"adult":(nibp->mode==1?"child":"baby"));
+	if(nibp->mode == 0) {
+		if(nibp->initial_pressure == 0)
+			printf(" Initial pressure 150mmHg\n");
+		else if(nibp->initial_pressure == 1)
+			printf(" Initial pressure 160mmHg\n");
+		else if(nibp->initial_pressure == 2)
+			printf(" Initial pressure 180mmHg\n");
+		else if(nibp->initial_pressure == 3)
+			printf(" Initial pressure 195mmHg\n");
+	}else if(nibp->mode == 1) {
+		if(nibp->initial_pressure == 0)
+			printf(" Initial pressure 130mmHg\n");
+		else if(nibp->initial_pressure == 1)
+			printf(" Initial pressure 150mmHg\n");
+		else if(nibp->initial_pressure == 2)
+			printf(" Initial pressure 160mmHg\n");
+		else if(nibp->initial_pressure == 3)
+			printf(" Initial pressure unknown\n");
+		
+	}else if(nibp->mode == 2) {
+		if(nibp->initial_pressure == 0)
+			printf(" Initial pressure 70mmHg\n");
+		else if(nibp->initial_pressure == 1)
+			printf(" Initial pressure 100mmHg\n");
+		else if(nibp->initial_pressure == 2)
+			printf(" Initial pressure 120mmHg\n");
+		else if(nibp->initial_pressure == 3)
+			printf(" Initial pressure unknown\n");
+	}
+	printf(" work mode %d\n", nibp->work_mode);
+	printf(" measure interval %d\n", nibp->measure_interval);
+	printf(" alarm %s\n", nibp->alarm_onoff?"on":"off");
+	printf(" alarm level %d\n", nibp->alarm_level);
+	printf(" alarm level unit %s\n", nibp->alarm_unit?"Kpa":"mmHg");
+	printf(" Sys alarm high level %d\n", nibp->sys_alarm_high_level_8 << 8 | nibp->sys_alarm_high_level_4);
+	printf(" Dia alarm high level %d\n", nibp->dia_alarm_high_level_8 << 8 | nibp->dia_alarm_high_level_4);
+	printf(" Mean alarm high level %d\n", nibp->mean_alarm_high_level_8 << 8 | nibp->mean_alarm_high_level_4);
 }
 
 void print_ecg_config_packet_info(ECG_config_t *ecg)
@@ -202,6 +265,7 @@ int blt_decode_config(unsigned char *buffer, unsigned int size, config_packet_t 
 	if(decode_size + length > size){
 		return -1; //the packet size is larger than received data
 	}
+	*consumed_bytes = decode_size + length;
 	
 	//the data integration check is done, no need to check more
 	while(decode_size < size) {
@@ -292,18 +356,53 @@ int blt_decode_config(unsigned char *buffer, unsigned int size, config_packet_t 
 		break;
 		}
 	}
-	return 1;
+	return 0;
 }
 
+// a configration packet:
+// 0xff, 0xd4, 0x01, 0xf1, 0x00, 0x00, 0x56, 0xce, 0x00, 0x1e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc1, 0x00, 0x04, 0x00, 0xc5, 0x86, 0x68, 0xfb, 0x00, 0xfd, 0x00, 0x06, 0x0d, 0x02, 0x04, 0x78, 0x32, 0x00, 0xfa, 0x00, 0x03, 0x04, 0x64, 0x5a, 0xf9, 0x00, 0x04, 0x0c, 0x78, 0x32, 0x00, 0xf8, 0x00, 0x06, 0x21, 0x80, 0x14, 0x04, 0x1e, 0x08, 0xc1, 0x00, 0x04, 0x00, 0xc5, 0x86, 0x68, 0xfb, 0x00, 0x0c, 0x20, 0x00, 0x04, 0xa0, 0x5a, 0x00, 0x5a, 0x32, 0x00, 0x6e, 0x3c, 0x00
+int blt_decode_command(unsigned char *buffer, unsigned int size, command_packet_t *command, int *consumed_bytes)
+{
+	int decode_size, length, cmd;
+	command_request_data_t *request;
+	command = (command_packet_t *)buffer;
+	decode_size = 3; // add the length field command direction, command high/low
+	if(decode_size > size){
+		return -1; //the packet size is larger than received data
+	}
+	cmd = command->command_h<<8|command->command_l;
+	switch(cmd) {
+		case COMMAND_MASTER_REQUEST_DATA:
+			decode_command_request_data(buffer+decode_size, size-decode_size, request, consumed_bytes);
+		break;
+		case COMMAND_SLAVE_RESPONSE_REQUEST:
+		break;
+		case COMMAND_MASTER_REQUEST_STOP:
+		break;
+		case COMMAND_MASTER_REQUEST_DATA_RESEND:
+		break;
+		case COMMAND_SLAVE_RESPONSE_REQUEST_NOT_EXIST:
+		break;
+		case COMMAND_MASTER_REQUEST_SETTINGS:
+		break;
+		case COMMAND_MASTER_REQUEST_NIBP:
+		break;
+		case COMMAND_MASTER_REQUEST_NIBP_STOP:
+		break;
+	}
+	return -1;
+}
+	
 int blt_ecg_decode(unsigned char *buff, unsigned int buff_size)
 {
 	packet_t *pkt;
 	broadcast_packet_t *broadcast;
 	config_packet_t *config;
+	command_packet_t *command;
 	int i, decode_size, consumed;
 	int length;
 
-	printf(" decode ECG buffer: %p, size %d\n ", buff, buff_size);
+	printf("decode buffer: %p, size %d\n ", buff, buff_size);
 #if 1
 	for(i = 0; i < buff_size; i++) {
 		printf("%02x ", buff[i]);
@@ -330,10 +429,12 @@ int blt_ecg_decode(unsigned char *buff, unsigned int buff_size)
 					return 0;
 				}
 			break;
+			
 			case PACKET_TYPE_DATA:
 			break;
 			case PACKET_TYPE_ARRHY_INFO:
 			break;
+			
 			case PACKET_TYPE_SLAVE_TO_MASTER_SETTINGS:
 				//process with config decode
 				if(blt_decode_config(
@@ -345,11 +446,22 @@ int blt_ecg_decode(unsigned char *buff, unsigned int buff_size)
 				}else{
 					return 0;
 				}
-				
 			break;
+			
 			case PACKET_TYPE_MASTER_TO_SLAVE_SETTINGS:
 			break;
+			
 			case PACKET_TYPE_COMMAND_RESPONSE:
+				//process with command packet decode
+				if(blt_decode_command(
+					&ecg_buffer[decode_size],
+					buff_size-decode_size,
+					command,
+					&consumed) == 0) {
+					return (decode_size+consumed);
+				}else{
+					return 0;
+				}
 			break;
 			default:
 			break;
