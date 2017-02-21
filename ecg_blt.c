@@ -359,12 +359,25 @@ int blt_decode_config(unsigned char *buffer, unsigned int size, config_packet_t 
 	return 0;
 }
 
-// a configration packet:
-// 0xff, 0xd4, 0x01, 0xf1, 0x00, 0x00, 0x56, 0xce, 0x00, 0x1e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc1, 0x00, 0x04, 0x00, 0xc5, 0x86, 0x68, 0xfb, 0x00, 0xfd, 0x00, 0x06, 0x0d, 0x02, 0x04, 0x78, 0x32, 0x00, 0xfa, 0x00, 0x03, 0x04, 0x64, 0x5a, 0xf9, 0x00, 0x04, 0x0c, 0x78, 0x32, 0x00, 0xf8, 0x00, 0x06, 0x21, 0x80, 0x14, 0x04, 0x1e, 0x08, 0xc1, 0x00, 0x04, 0x00, 0xc5, 0x86, 0x68, 0xfb, 0x00, 0x0c, 0x20, 0x00, 0x04, 0xa0, 0x5a, 0x00, 0x5a, 0x32, 0x00, 0x6e, 0x3c, 0x00
-int blt_decode_command(unsigned char *buffer, unsigned int size, command_packet_t *command, int *consumed_bytes)
+int blt_decode_command_request_data(unsigned char *buffer, unsigned int size, command_master_request_data_t *request_data, int *consumed_bytes)
+{
+    if(size >= 2) {
+        request_data = (command_master_request_data_t *)buffer;
+        printf("command master request data, port %d\n", request_data->port_h<<8|request_data->port_l);
+        *consumed_bytes = 2;
+        return 0;
+    }else{
+        printf("Incomplete master request data packet!\n");
+    }
+
+    return -1;
+}
+
+int blt_decode_command(unsigned char *buffer, int size, command_packet_t *command, int *consumed_bytes)
 {
 	int decode_size, length, cmd;
-	command_request_data_t *request;
+	command_master_request_data_t *request_data;
+
 	command = (command_packet_t *)buffer;
 	decode_size = 3; // add the length field command direction, command high/low
 	if(decode_size > size){
@@ -373,32 +386,44 @@ int blt_decode_command(unsigned char *buffer, unsigned int size, command_packet_
 	cmd = command->command_h<<8|command->command_l;
 	switch(cmd) {
 		case COMMAND_MASTER_REQUEST_DATA:
-			decode_command_request_data(buffer+decode_size, size-decode_size, request, consumed_bytes);
+		    blt_decode_command_request_data(buffer+decode_size, size-decode_size, request_data, consumed_bytes);
 		break;
 		case COMMAND_SLAVE_RESPONSE_REQUEST:
 		break;
-		case COMMAND_MASTER_REQUEST_STOP:
-		break;
+
 		case COMMAND_MASTER_REQUEST_DATA_RESEND:
 		break;
 		case COMMAND_SLAVE_RESPONSE_REQUEST_NOT_EXIST:
 		break;
+		case COMMAND_MASTER_REQUEST_STOP:
 		case COMMAND_MASTER_REQUEST_SETTINGS:
-		break;
 		case COMMAND_MASTER_REQUEST_NIBP:
-		break;
 		case COMMAND_MASTER_REQUEST_NIBP_STOP:
 		break;
 	}
 	return -1;
 }
+
+int blt_decode_data(unsigned char *buffer, int size, packet_data_t *data, int *consumed_bytes)
+{
+    int decode_size, length, cmd;
+	data = (packet_data_t *)buffer;
+	decode_size = 3; // add the length field and number
+	if(decode_size > size){
+		return -1; //the packet size is larger than received data
+	}
+
+    return -1;
+}
 	
-int blt_ecg_decode(unsigned char *buff, unsigned int buff_size)
+int blt_ecg_decode(unsigned char *buff, int buff_size)
 {
 	packet_t *pkt;
 	broadcast_packet_t *broadcast;
 	config_packet_t *config;
 	command_packet_t *command;
+	packet_data_t *data;
+
 	int i, decode_size, consumed;
 	int length;
 
@@ -431,6 +456,15 @@ int blt_ecg_decode(unsigned char *buff, unsigned int buff_size)
 			break;
 			
 			case PACKET_TYPE_DATA:
+                if(blt_decode_data(
+					&ecg_buffer[decode_size],
+					buff_size-decode_size,
+					data,
+					&consumed) == 0) { // skip header
+					return (decode_size+consumed);
+				}else{
+					return 0;
+				}
 			break;
 			case PACKET_TYPE_ARRHY_INFO:
 			break;

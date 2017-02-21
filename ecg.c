@@ -5,7 +5,7 @@
 unsigned int packet_type;
 unsigned char ecg_buffer[4096];
 
-int ecg_decode(unsigned char *buff, unsigned int buff_size)
+int ecg_decode(unsigned char *buff, int buff_size)
 {
     int ret = 0;
 
