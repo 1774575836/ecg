@@ -993,17 +993,16 @@ int blt_ecg_decode(unsigned char *buff, int buff_size)
 	command_packet_t *command;
 	arrhy_packet_t *arrhy;
 	packet_data_t *data;
-
 	int i, decode_size, consumed;
 	int length;
 
-	printf("decode buffer: %p, size %d\n ", buff, buff_size);
 #if 1
+	printf("decode buffer: %p, size %d\n ", buff, buff_size);
 	for(i = 0; i < buff_size; i++) {
 		printf("%02x ", buff[i]);
 	}
-#endif
 	printf("\n");
+#endif
 	memcpy(ecg_buffer, buff, buff_size);
 
 	pkt = (packet_t *)ecg_buffer;
@@ -1019,10 +1018,8 @@ int blt_ecg_decode(unsigned char *buff, int buff_size)
 					&ecg_buffer[decode_size],
 					buff_size-decode_size,
 					broadcast,
-					&consumed) == 0) { // skip header
+					&consumed) == 0) {
 					return (decode_size+consumed);
-				}else{
-					return 0;
 				}
 			break;
 			
@@ -1031,10 +1028,8 @@ int blt_ecg_decode(unsigned char *buff, int buff_size)
 					&ecg_buffer[decode_size],
 					buff_size-decode_size,
 					arrhy,
-					&consumed) == 0) { // skip header
+					&consumed) == 0) {
 					return (decode_size+consumed);
-				}else{
-					return 0;
 				}
 			break;
 			
@@ -1043,37 +1038,29 @@ int blt_ecg_decode(unsigned char *buff, int buff_size)
 					&ecg_buffer[decode_size],
 					buff_size-decode_size,
 					data,
-					&consumed) == 0) { // skip header
+					&consumed) == 0) {
 					return (decode_size+consumed);
-				}else{
-					return 0;
 				}
 			break;
 			
 			case PACKET_TYPE_SLAVE_TO_MASTER_SETTINGS:
 			case PACKET_TYPE_MASTER_TO_SLAVE_SETTINGS:
-				//process with config decode
 				if(blt_decode_config(
 					&ecg_buffer[decode_size],
 					buff_size-decode_size,
 					config,
 					&consumed) == 0) {
 					return (decode_size+consumed);
-				}else{
-					return 0;
 				}
 			break;
 			
 			case PACKET_TYPE_COMMAND_RESPONSE:
-				//process with command packet decode
 				if(blt_decode_command(
 					&ecg_buffer[decode_size],
 					buff_size-decode_size,
 					command,
 					&consumed) == 0) {
 					return (decode_size+consumed);
-				}else{
-					return 0;
 				}
 			break;
 			default:
