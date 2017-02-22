@@ -780,17 +780,6 @@ typedef struct{
     }body;
 } __attribute__ ((packed)) packet_t;
 
-inline unsigned char machine_typea(unsigned char type) {
-    if(type >= 1 && type <= 66)
-        return MACHINE_TYPE_SLAVE;
-    if(type >= 241 && type <= 254)
-            return MACHINE_TYPE_MASTER;
-    if(type == 255)
-            return MACHINE_TYPE_BROADCAST;
-			
-	return MACHINE_TYPE_ERROR;
-}
-
 extern packet_t *decoded_blt_pkt;
 extern unsigned int packet_type;
 
