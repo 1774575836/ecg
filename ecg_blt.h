@@ -761,6 +761,7 @@ enum{
 	ARRHY_ST_ELEVATE,
 	ARRHY_PNP,
 	ARRHY_PNC,
+	ARRHT_LAST
 };
 
 typedef struct{

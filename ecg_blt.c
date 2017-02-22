@@ -6,46 +6,33 @@
 packet_t *decoded_blt_pkt;
 
 /********arrhythmia packet(type 0xD3) decode *************/
+const char *arrhy_string[ARRHT_LAST] = {
+	"ARRHY_NORMAL",
+	"ARRHY_ASYSTOLE",
+	"ARRHY_VENT_FIB",
+	"ARRHY_VENT_TACHY",
+	"ARRHY_MULTIPLE_PVCS",
+	"ARRHY_COUPLET",
+	"ARRHY_PVCS_BIGEMINY",
+	"ARRHY_PVCS_TRIGEMINY",
+	"ARRHY_R_ON_T",
+	"ARRHY_VPB",
+	"ARRHY_TACHY",
+	"ARRHY_BRADY",
+	"ARRHY_MISSED_BEATS",
+	"ARRHY_ST_EPRESS",
+	"ARRHY_ST_ELEVATE",
+	"ARRHY_PNP",
+	"ARRHY_PNC",
+};
+
 void print_arrhy_packet_info(arrhy_packet_t *arrhy)
 {
 	printf("Dump arrhy packet info:\n");
-	switch(arrhy->code) {
-		case ARRHY_NORMAL: printf(" NORMAL");
-		break;
-		case ARRHY_ASYSTOLE: printf(" ARRHY_ASYSTOLE");
-		break;
-		case ARRHY_VENT_FIB: printf(" ARRHY_VENT_FIB");
-		break;
-		case ARRHY_VENT_TACHY: printf(" ARRHY_VENT_TACHY");
-		break;
-		case ARRHY_MULTIPLE_PVCS: printf(" ARRHY_MULTIPLE_PVCS");
-		break;
-		case ARRHY_COUPLET: printf(" ARRHY_COUPLET");
-		break;
-		case ARRHY_PVCS_BIGEMINY: printf(" ARRHY_PVCS_BIGEMINY");
-		break;
-		case ARRHY_PVCS_TRIGEMINY: printf(" ARRHY_PVCS_TRIGEMINY");
-		break;
-		case ARRHY_R_ON_T: printf(" ARRHY_R_ON_T");
-		break;
-		case ARRHY_VPB: printf(" ARRHY_VPB");
-		break;
-		case ARRHY_TACHY: printf(" ARRHY_TACHY");
-		break;
-		case ARRHY_BRADY: printf(" ARRHY_BRADY");
-		break;
-		case ARRHY_MISSED_BEATS: printf(" ARRHY_MISSED_BEATS");
-		break;
-		case ARRHY_ST_EPRESS: printf(" ARRHY_ST_EPRESS");
-		break;
-		case ARRHY_ST_ELEVATE: printf(" ARRHY_ST_ELEVATE");
-		break;
-		case ARRHY_PNP: printf(" ARRHY_PNP");
-		break;
-		case ARRHY_PNC: printf(" ARRHY_PNC");
-		break;
-		default:
-		break;
+	if(arrhy->code < ARRHT_LAST) {
+	    printf(" %s\n", arrhy_string[arrhy->code]);
+	}else{
+	    printf(" ARRHY UNKNOWN\n");
 	}
 	printf("\n");
 }
@@ -435,6 +422,7 @@ int blt_decode_config(unsigned char *buffer, unsigned int size, config_packet_t 
 		}
 		if(flag == 0) {
 			printf("No valid config packet decoded, break while loop\n");
+			break;
 		}
 	}
 	return 0;
@@ -977,6 +965,7 @@ int blt_decode_data(unsigned char *buffer, int size, packet_data_t *data, int *c
 		}
 		if(flag == 0) {
 			printf("No valid data packet decoded, break while loop\n");
+			break;
 		}
 	}
 	//ignore sub-packet decode consumed length result
