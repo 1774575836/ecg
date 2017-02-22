@@ -333,6 +333,7 @@ int blt_decode_config(unsigned char *buffer, unsigned int size, config_packet_t 
 	if(decode_size + length > size){
 		return -1; //the packet size is larger than received data
 	}
+	*consumed_bytes = decode_size + (config->length_h<<8 | config->length_l);
 	
 	//the data integration check is done, no need to check more
 	flag = 0;
@@ -436,8 +437,6 @@ int blt_decode_config(unsigned char *buffer, unsigned int size, config_packet_t 
 			printf("No valid config packet decoded, break while loop\n");
 		}
 	}
-	//ignore sub-packet decode consumed length result
-	*consumed_bytes = decode_size + length;
 	return 0;
 }
 /********End of config packet(type 0xD4) decode *************/
@@ -515,6 +514,7 @@ int blt_decode_command_slave_response_data_not_exist(unsigned char *buffer, unsi
 
 int blt_decode_command(unsigned char *buffer, int size, command_packet_t *command, int *consumed_bytes)
 {
+	int ret = -1;
 	int decode_size, length, cmd;
 	command_master_request_data_t *request_data;
 	command_slave_response_request_t *response_request;
@@ -523,37 +523,47 @@ int blt_decode_command(unsigned char *buffer, int size, command_packet_t *comman
 
 	command = (command_packet_t *)buffer;
 	decode_size = 3; // add the length field command direction, command high/low
+	*consumed_bytes = 0;
 	if(decode_size > size){
-		return -1; //the packet size is larger than received data
+		return ret; //the packet size is larger than received data
 	}
 	cmd = command->command_h<<8|command->command_l;
 	switch(cmd) {
 		case COMMAND_MASTER_REQUEST_DATA:
-		blt_decode_command_request_data(buffer+decode_size, size-decode_size, &request_data, consumed_bytes);
+		ret = blt_decode_command_request_data(buffer+decode_size, size-decode_size, &request_data, consumed_bytes);
 		break;
 		case COMMAND_SLAVE_RESPONSE_REQUEST:
-		blt_decode_command_response_request(buffer+decode_size, size-decode_size, &response_request, consumed_bytes);
+		ret = blt_decode_command_response_request(buffer+decode_size, size-decode_size, &response_request, consumed_bytes);
 		break;
 		case COMMAND_MASTER_REQUEST_DATA_RESEND:
-		blt_decode_command_master_request_data_resend(buffer+decode_size, size-decode_size, &requst_data_resend, consumed_bytes);
+		ret = blt_decode_command_master_request_data_resend(buffer+decode_size, size-decode_size, &requst_data_resend, consumed_bytes);
 		break;
 		case COMMAND_SLAVE_RESPONSE_REQUEST_NOT_EXIST:
-		blt_decode_command_slave_response_data_not_exist(buffer+decode_size, size-decode_size, &response_data_not_exist, consumed_bytes);
+		ret = blt_decode_command_slave_response_data_not_exist(buffer+decode_size, size-decode_size, &response_data_not_exist, consumed_bytes);
 		break;
 		case COMMAND_MASTER_REQUEST_STOP:
+		ret = 0;
 		printf("master request stop command\n");
 		break;
 		case COMMAND_MASTER_REQUEST_SETTINGS:
+		ret = 0;
 		printf("master request setting command\n");
 		break;
 		case COMMAND_MASTER_REQUEST_NIBP:
+		ret = 0;
 		printf("master request NIBP command\n");
 		break;
 		case COMMAND_MASTER_REQUEST_NIBP_STOP:
+		ret = 0;
 		printf("master request NIBP stop command\n");
 		break;
 	}
-	return -1;
+	if(ret == 0) {
+		*consumed_bytes += 3;
+	}else{
+		*consumed_bytes = 0;
+	}
+	return ret;
 }
 /********End of command packet(type 0xDA) decode *************/
 
@@ -874,7 +884,7 @@ int blt_decode_data(unsigned char *buffer, int size, packet_data_t *data, int *c
 	
 	}	
 	//skip packet number
-	decode_size++;
+	decode_size = 3;
 	//the data integration check is done, no need to check more
 	flag = 0; // incase the data is garbage, need to break the while loop
 	while(decode_size < size) {
@@ -970,7 +980,7 @@ int blt_decode_data(unsigned char *buffer, int size, packet_data_t *data, int *c
 		}
 	}
 	//ignore sub-packet decode consumed length result
-	*consumed_bytes = decode_size + length;
+	*consumed_bytes = decode_size;
     return 0;
 }
 /********End of data packet(type 0xD1) decode *************/
