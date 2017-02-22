@@ -50,7 +50,7 @@ enum{
 	MODULE_CO2_2 = 0xF7,
 	MODULE_RESP = 0xF8,
 	MODULE_PULSE = 0xF9,
-	MODULE_SPO2 = 0xFa,
+	MODULE_SPO2 = 0xFA,
 	MODULE_NIBP = 0xFB,
 	MODULE_ECG12 = 0xFC,
 	MODULE_ECG5 = 0xFD,
@@ -105,12 +105,12 @@ typedef struct{
 
 //COMMAND_MASTER_REQUEST_DATA_RESEND = 0x05
 typedef struct{
-    unsigned char data_packet_number;
+    unsigned char packet_number;
 }command_master_request_data_resend_t;
 
 //COMMAND_SLAVE_RESPONSE_REQUEST_NOT_EXIST = 0x06
 typedef struct{
-    unsigned char data_packet_number;
+    unsigned char packet_number;
 }command_slave_response_data_not_exist_t;
 
 //COMMAND_MASTER_REQUEST_SETTINGS = 0x07
@@ -195,6 +195,133 @@ typedef struct{
 /********data packet(type 0xD1) definition*************/
 typedef struct{
     //B0
+    unsigned char   module; // ==0xC1-0xC8
+    //B1
+    unsigned char   length_h;
+    //B2
+    unsigned char   length_l;
+	//B3
+	unsigned int amplifer1	:1;
+	unsigned int amplifer2	:1;
+	unsigned int dropped	:1;
+	unsigned int out_low_range	:1;
+	unsigned int out_high_range	:1;
+	unsigned int alarm_at_low	:1;
+	unsigned int alarm_at_high	:1;
+	unsigned int invalid:1;
+	//B4
+	unsigned char temp_b8;
+	//B5
+	unsigned int temp_b4	:4;
+	unsigned int 			:2;
+	unsigned int alarm_level	:2;
+}TEMP_data_t;
+
+typedef struct{
+	//B0
+	unsigned int error :1;
+	unsigned int 		:1;
+	unsigned int sys_b1 :1;
+	unsigned int dia_b1 :1;
+	unsigned int map_b1 :1;
+	unsigned int pr_b1  :1;
+	unsigned int  :2;
+	//B1
+	unsigned char sys_b8;
+	//B2
+	unsigned char dia_b8;
+	//B3
+	unsigned char map_b8;
+	//B4
+	unsigned char pr_b8;
+	//B5
+	unsigned int sys_low_alarm :1;
+	unsigned int sys_up_alarm :1;
+	unsigned int dia_low_alarm :1;
+	unsigned int dia_up_alarm :1;
+	unsigned int map_low_alarm :1;
+	unsigned int map_up_alarm :1;
+	unsigned int pr_low_alarm :1;
+	unsigned int pr_up_alarm :1;
+}NIBP_payload_t;
+
+typedef struct{
+    //B0
+    unsigned char   module; // ==0xFB
+    //B1
+    unsigned char   length_h;
+    //B2
+    unsigned char   length_l;
+	//B3
+	unsigned int	:6;
+	unsigned int alarm_level	:2;
+	//B4
+	unsigned int work_mode		:4;
+	unsigned int measure_mode	:2;
+	unsigned int working		:1;
+	unsigned int resulting	:1;
+	//B5
+	unsigned char data[0]; //may not exist if resulting == 0
+}NIBP_data_t;
+
+typedef struct{
+    //B0
+    unsigned char   module; // ==0xF9
+    //B1
+    unsigned char   length_h;
+    //B2
+    unsigned char   length_l;
+	//B3
+	unsigned char	pulse_b8;
+	//B4
+	unsigned int pulse_b1:1;
+	unsigned int alarm_at_low:1;
+	unsigned int alarm_at_high:1;
+	unsigned int invalid:1;
+	unsigned int dropped:1;
+	unsigned int :1;
+	unsigned int alarm_level:2;
+	//B5
+	unsigned int source:4;
+	unsigned int :4;
+}PULSE_data_t;
+
+typedef struct{
+	//B0
+	unsigned int breath_in:1;
+	unsigned int breath_out:1;
+	unsigned int :6;
+	//B1
+	unsigned int data;
+}RESP_payload_t;
+
+typedef struct{
+   //B0
+    unsigned char   module; // ==0xF8
+    //B1
+    unsigned char   length_h;
+    //B2
+    unsigned char   length_l;
+	//B3
+	unsigned char	rate;
+	//B4
+	unsigned int invalid:1;
+	unsigned int dropped:1;
+	unsigned int alarm_at_low:1;
+	unsigned int alarm_at_high:1;
+	unsigned int suffocate_alarm:1;
+	unsigned int :1;
+	unsigned int alarm_level:2;
+	//B5
+	unsigned int source:4;
+	unsigned int amplifer:3;
+	unsigned int :1;
+	//B6-B7, real payload, repeat
+	unsigned char data[0];
+}RESP_data_t;
+
+typedef struct{
+    //B0
     unsigned int R:1;
     unsigned int PACE:1;
     unsigned int :5;
@@ -221,21 +348,21 @@ typedef struct{
     unsigned int    channel:4;
     unsigned int    :1;
     unsigned int    st_sign:1;
-    unsigned int    st_value_high_b2;
+    unsigned int    st_value_b2;
     //B6
     unsigned char   st_value_b8;
     //B7
     unsigned char   arrhythmia;
     //B8
-    unsigned int    LA_drop:1;
-    unsigned int    LL_drop:1;
-    unsigned int    RA_drop:1;
+    unsigned int    LA_dropped:1;
+    unsigned int    LL_dropped:1;
+    unsigned int    RA_dropped:1;
     unsigned int    :1;
     unsigned int    II_alarm:1;
-    unsigned int    heart_beat_valid:1;
+    unsigned int    heart_beat_invalid:1;
     unsigned int    :2;
     //B9-B10, real payload, repeat
-    ECG3_payload_t payload;
+    unsigned char data[0];
 }ECG3_data_t;
 
 typedef struct{
@@ -270,21 +397,21 @@ typedef struct{
     unsigned int    channel:4;
     unsigned int    ECG_3_5:1;
     unsigned int    st_sign:1;
-    unsigned int    st_value_high_b2;
+    unsigned int    st_value_b2;
     //B6
     unsigned char   st_value_b8;
     //B7
     unsigned char   arrhythmia;
     //B8
-    unsigned int    LA_drop:1;
-    unsigned int    LL_drop:1;
-    unsigned int    RA_drop:1;
-    unsigned int    V_drop:1;
+    unsigned int    LA_dropped:1;
+    unsigned int    LL_dropped:1;
+    unsigned int    RA_dropped:1;
+    unsigned int    V_dropped:1;
     unsigned int    II_alarm:1;
-    unsigned int    heart_beat_valid:1;
+    unsigned int    heart_beat_invalid:1;
     unsigned int    :2;
     //B9-B12, real payload, repeat
-    ECG5_payload_t payload;
+    unsigned char data[0];
 }ECG5_data_t;
 
 typedef struct{
@@ -329,28 +456,28 @@ typedef struct{
     unsigned int    channel:4;
     unsigned int    ECG_3_12:1;
     unsigned int    st_sign:1;
-    unsigned int    st_value_high_b2;
+    unsigned int    st_value_b2;
     //B6
     unsigned char   st_value_b8;
     //B7
     unsigned char   arrhythmia;
     //B8
-    unsigned int    LA_drop:1;
-    unsigned int    LL_drop:1;
-    unsigned int    RA_drop:1;
-    unsigned int    V1_drop:1;
+    unsigned int    LA_dropped:1;
+    unsigned int    LL_dropped:1;
+    unsigned int    RA_dropped:1;
+    unsigned int    V1_dropped:1;
     unsigned int    II_alarm:1;
-    unsigned int    heart_beat_valid:1;
+    unsigned int    heart_beat_invalid:1;
     unsigned int    :2;
     //B9
-    unsigned int    V2_drop:1;
-    unsigned int    V3_drop:1;
-    unsigned int    V4_drop:1;
-    unsigned int    V5_drop:1;
-    unsigned int    V6_drop:1;
+    unsigned int    V2_dropped:1;
+    unsigned int    V3_dropped:1;
+    unsigned int    V4_dropped:1;
+    unsigned int    V5_dropped:1;
+    unsigned int    V6_dropped:1;
     unsigned int    :3;
     //B10-B18, real payload, repeat
-    ECG12_payload_t payload;
+    unsigned char data[0];
 }ECG12_data_t;
 
 typedef struct{
@@ -373,18 +500,18 @@ typedef struct{
     //B2
     unsigned char   length_l;
     //B3
-    unsigned int    drop:1;
+    unsigned int    dropped:1;
     unsigned int    decrease:1;
     unsigned int    search_too_long:1;
     unsigned int    detect_pulse:1;
-    unsigned int    alarm_low:1;
-    unsigned int    alarm_high:1;
+    unsigned int    alarm_at_low:1;
+    unsigned int    alarm_at_high:1;
     unsigned int    :2;
     //B4
     unsigned int    value:7;
     unsigned int    wrong:1;
     //B5-B6, real payload, repeat
-    SPO2_payload_t payload;
+    unsigned char data[0];
 }SPO2_data_t;
 
 //PACKET_TYPE_DATA == 0xD1
@@ -392,18 +519,14 @@ typedef struct{
     unsigned char length_h;
     unsigned char length_l;
     unsigned char number;
-    union{
-        ECG3_data_t ecg3;
-        ECG5_data_t ecg5;
-        ECG12_data_t ecg12;
-    }data;
+    unsigned char data[0];
 }packet_data_t;
 /********End of data packet(type 0xD1) definition*************/
 
 
 /********Config packet(type 0xD4/0xD5) definition*************/
 typedef struct{
-	unsigned char type; //==0xFD or 0xFE or 0xFC
+	unsigned char module; //==0xFD or 0xFE or 0xFC
 	unsigned char length_h;
 	unsigned char length_l;
 	//B3
@@ -431,7 +554,7 @@ typedef struct{
 }ECG_config_t;
 
 typedef struct{
-	unsigned char type; //==0xFA
+	unsigned char module; //==0xFA
 	unsigned char length_h;
 	unsigned char length_l;
 	//B3
@@ -459,7 +582,7 @@ enum{
 };
 
 typedef struct{
-	unsigned char type; //==0xF9
+	unsigned char module; //==0xF9
 	unsigned char length_h;
 	unsigned char length_l;
 	//B3
@@ -485,7 +608,7 @@ enum{
 };
 
 typedef struct{
-	unsigned char type; //==0xF8
+	unsigned char module; //==0xF8
 	unsigned char length_h;
 	unsigned char length_l;
 	//B3
@@ -509,7 +632,7 @@ typedef struct{
 }RESP_config_t;
 
 typedef struct{
-	unsigned char type; //==0xC1-0xC8
+	unsigned char module; //==0xC1-0xC8
 	unsigned char length_h;
 	unsigned char length_l;
 	//B3
@@ -535,7 +658,7 @@ enum{
 };
 
 typedef struct{
-	unsigned char type; //==0xFB
+	unsigned char module; //==0xFB
 	unsigned char length_h;
 	unsigned char length_l;
 	//B3
@@ -574,7 +697,7 @@ typedef struct{
 }NIBP_config_t;
 
 typedef struct{
-	unsigned char type; //==0xCE
+	unsigned char module; //==0xCE
 	unsigned char length_h;
 	unsigned char length_l;
 	//B3
@@ -602,7 +725,7 @@ typedef struct{
 }PATIANT_config_t;
 
 typedef struct{
-	unsigned char type; //==0xF3
+	unsigned char module; //==0xF3
 	unsigned char length_h;
 	unsigned char length_l;
 	//B3
