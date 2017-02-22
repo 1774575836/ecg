@@ -5,6 +5,69 @@
 
 packet_t *decoded_blt_pkt;
 
+/********arrhythmia packet(type 0xD3) decode *************/
+void print_arrhy_packet_info(arrhy_packet_t *arrhy)
+{
+	printf("Dump arrhy packet info:\n");
+	switch(arrhy->code) {
+		case ARRHY_NORMAL: printf(" NORMAL");
+		break;
+		case ARRHY_ASYSTOLE: printf(" ARRHY_ASYSTOLE");
+		break;
+		case ARRHY_VENT_FIB: printf(" ARRHY_VENT_FIB");
+		break;
+		case ARRHY_VENT_TACHY: printf(" ARRHY_VENT_TACHY");
+		break;
+		case ARRHY_MULTIPLE_PVCS: printf(" ARRHY_MULTIPLE_PVCS");
+		break;
+		case ARRHY_COUPLET: printf(" ARRHY_COUPLET");
+		break;
+		case ARRHY_PVCS_BIGEMINY: printf(" ARRHY_PVCS_BIGEMINY");
+		break;
+		case ARRHY_PVCS_TRIGEMINY: printf(" ARRHY_PVCS_TRIGEMINY");
+		break;
+		case ARRHY_R_ON_T: printf(" ARRHY_R_ON_T");
+		break;
+		case ARRHY_VPB: printf(" ARRHY_VPB");
+		break;
+		case ARRHY_TACHY: printf(" ARRHY_TACHY");
+		break;
+		case ARRHY_BRADY: printf(" ARRHY_BRADY");
+		break;
+		case ARRHY_MISSED_BEATS: printf(" ARRHY_MISSED_BEATS");
+		break;
+		case ARRHY_ST_EPRESS: printf(" ARRHY_ST_EPRESS");
+		break;
+		case ARRHY_ST_ELEVATE: printf(" ARRHY_ST_ELEVATE");
+		break;
+		case ARRHY_PNP: printf(" ARRHY_PNP");
+		break;
+		case ARRHY_PNC: printf(" ARRHY_PNC");
+		break;
+		default:
+		break;
+	}
+	printf("\n");
+}
+
+int blt_decode_arrhy(unsigned char *buffer, int size, arrhy_packet_t *arrhy, int *consumed_bytes)
+{
+    int decode_size, length, cmd;
+	arrhy = (arrhy_packet_t *)buffer;
+	decode_size = 3; // add the length field and code
+	if(decode_size > size){
+		return -1; //the packet size is larger than received data
+	}
+
+	printf("decode arrhy packet\n");
+	print_arrhy_packet_info(arrhy);
+    return -1;
+}
+/********End of arrhythmia packet(type 0xD3) decode *************/
+
+
+
+/********broadcast packet(type 0xD0) decode *************/
 void print_broadcast_packet_info(broadcast_packet_t *broad)
 {
 	printf("Dump broadcast packet info:\n");
@@ -115,6 +178,10 @@ void generate_broadcast_packet()
 {
 }
 
+/********End of broadcast packet(type 0xD0) decode *************/
+
+
+/********config packet(type 0xD4) decode *************/
 void print_patiant_config_packet_info(PATIANT_config_t *patiant)
 {
 	printf("Dump patiant config packet info:\n");
@@ -131,7 +198,7 @@ void print_temp_config_packet_info(TEMP_config_t *temp)
 {
 	printf("Dump temp config packet info:\n");
 	printf(" packet size: %d\n", temp->length_h<<8|temp->length_l);
-	printf(" temp number:%d\n", temp->type-CONFIG_TYPE_TEMP1+1);
+	printf(" temp number:%d\n", temp->type-MODULE_TEMP1+1);
 	printf(" unit %s\n", (temp->unit==1)?"farenheit":"celsius");
 	printf(" alarm %s\n", temp->alarm_onoff?"on":"off");
 	printf(" alarm level %d\n", temp->alarm_level);
@@ -236,7 +303,7 @@ void print_ecg_config_packet_info(ECG_config_t *ecg)
 	printf(" Muscle filter %s\n", ecg->filter_muscle?"on":"off");
 	printf(" work mode %d\n", ecg->mode);
 	printf(" channel %x\n", ecg->channel);
-	if(ecg->type == CONFIG_TYPE_ECG5) {
+	if(ecg->type == MODULE_ECG5) {
 		printf("%s\n", ecg->ecg3_5?" ECG 3":" ECG 5");
 	}
 	printf(" qibofenxi %s\n", ecg->qibofenxi?"on":"off");
@@ -271,7 +338,7 @@ int blt_decode_config(unsigned char *buffer, unsigned int size, config_packet_t 
 	while(decode_size < size) {
 		//printf("\ntype:%d,%d\n", buffer[decode_size],decode_size);
 		switch(buffer[decode_size]) {
-		case CONFIG_TYPE_PATIANT: //0xCE
+		case MODULE_PATIANT: //0xCE
 			patiant = (PATIANT_config_t *)&buffer[decode_size];
 			length = patiant->length_h << 8 | patiant->length_l;
 			decode_size += 3; // type and length field
@@ -280,14 +347,14 @@ int blt_decode_config(unsigned char *buffer, unsigned int size, config_packet_t 
 			print_patiant_config_packet_info(patiant);
 		break;
 		
-		case CONFIG_TYPE_TEMP1: //0xC1
-		case CONFIG_TYPE_TEMP2: //0xC2
-		case CONFIG_TYPE_TEMP3: //0xC3
-		case CONFIG_TYPE_TEMP4: //0xC4
-		case CONFIG_TYPE_TEMP5: //0xC5
-		case CONFIG_TYPE_TEMP6: //0xC6
-		case CONFIG_TYPE_TEMP7: //0xC7
-		case CONFIG_TYPE_TEMP8: //0xC8
+		case MODULE_TEMP1: //0xC1
+		case MODULE_TEMP2: //0xC2
+		case MODULE_TEMP3: //0xC3
+		case MODULE_TEMP4: //0xC4
+		case MODULE_TEMP5: //0xC5
+		case MODULE_TEMP6: //0xC6
+		case MODULE_TEMP7: //0xC7
+		case MODULE_TEMP8: //0xC8
 			temp = (TEMP_config_t *)&buffer[decode_size];
 			length = temp->length_h << 8 | temp->length_l;
 			decode_size += 3; // type and length field
@@ -296,7 +363,7 @@ int blt_decode_config(unsigned char *buffer, unsigned int size, config_packet_t 
 			print_temp_config_packet_info(temp);
 		break;
 		
-		case CONFIG_TYPE_MONITOR: //0xF3
+		case MODULE_SETTINGS: //0xF3
 			monitor = (MONITOR_config_t *)&buffer[decode_size];
 			length = monitor->length_h << 8 | monitor->length_l;
 			decode_size += 3; // type and length field
@@ -305,7 +372,7 @@ int blt_decode_config(unsigned char *buffer, unsigned int size, config_packet_t 
 			print_monitor_config_packet_info(monitor);
 		break;
 		
-		case CONFIG_TYPE_RESP: //0xF8
+		case MODULE_RESP: //0xF8
 			resp = (RESP_config_t *)&buffer[decode_size];
 			length = resp->length_h << 8 | resp->length_l;
 			decode_size += 3; // type and length field
@@ -314,7 +381,7 @@ int blt_decode_config(unsigned char *buffer, unsigned int size, config_packet_t 
 			print_resp_config_packet_info(resp);
 		break;
 		
-		case CONFIG_TYPE_PULSE: //0xF9
+		case MODULE_PULSE: //0xF9
 			pulse = (PULSE_config_t *)&buffer[decode_size];
 			length = pulse->length_h << 8 | pulse->length_l;
 			decode_size += 3; // type and length field
@@ -323,7 +390,7 @@ int blt_decode_config(unsigned char *buffer, unsigned int size, config_packet_t 
 			print_pulse_config_packet_info(pulse);
 		break;
 		
-		case CONFIG_TYPE_SPO2: //0xFA
+		case MODULE_SPO2: //0xFA
 			spo2 = (SPO2_config_t *)&buffer[decode_size];
 			length = spo2->length_h << 8 | spo2->length_l;
 			decode_size += 3; // type and length field
@@ -332,7 +399,7 @@ int blt_decode_config(unsigned char *buffer, unsigned int size, config_packet_t 
 			print_spo2_config_packet_info(spo2);
 		break;
 		
-		case CONFIG_TYPE_NIBP: //0xFB
+		case MODULE_NIBP: //0xFB
 			nibp = (NIBP_config_t *)&buffer[decode_size];
 			length = nibp->length_h << 8 | nibp->length_l;
 			decode_size += 3; // type and length field
@@ -341,9 +408,9 @@ int blt_decode_config(unsigned char *buffer, unsigned int size, config_packet_t 
 			print_nibp_config_packet_info(nibp);
 		break;
 		
-		case CONFIG_TYPE_ECG3: //0xFE
-		case CONFIG_TYPE_ECG5: //0xFD
-		case CONFIG_TYPE_ECG12: //0xFC
+		case MODULE_ECG3: //0xFE
+		case MODULE_ECG5: //0xFD
+		case MODULE_ECG12: //0xFC
 			ecg = (ECG_config_t *)&buffer[decode_size];
 			length = ecg->length_h << 8 | ecg->length_l;
 			decode_size += 3; // type and length field
@@ -358,7 +425,10 @@ int blt_decode_config(unsigned char *buffer, unsigned int size, config_packet_t 
 	}
 	return 0;
 }
+/********End of config packet(type 0xD4) decode *************/
 
+
+/********command packet(type 0xDA) decode *************/
 int blt_decode_command_request_data(unsigned char *buffer, unsigned int size, command_master_request_data_t *request_data, int *consumed_bytes)
 {
     if(size >= 2) {
@@ -403,7 +473,10 @@ int blt_decode_command(unsigned char *buffer, int size, command_packet_t *comman
 	}
 	return -1;
 }
+/********End of command packet(type 0xDA) decode *************/
 
+
+/********data packet(type 0xDA) decode *************/
 int blt_decode_data(unsigned char *buffer, int size, packet_data_t *data, int *consumed_bytes)
 {
     int decode_size, length, cmd;
@@ -413,15 +486,19 @@ int blt_decode_data(unsigned char *buffer, int size, packet_data_t *data, int *c
 		return -1; //the packet size is larger than received data
 	}
 
+	printf("decode contained data\n");
+	
     return -1;
 }
-	
+/********End of command packet(type 0xDA) decode *************/
+
 int blt_ecg_decode(unsigned char *buff, int buff_size)
 {
 	packet_t *pkt;
 	broadcast_packet_t *broadcast;
 	config_packet_t *config;
 	command_packet_t *command;
+	arrhy_packet_t *arrhy;
 	packet_data_t *data;
 
 	int i, decode_size, consumed;
@@ -441,13 +518,25 @@ int blt_ecg_decode(unsigned char *buff, int buff_size)
 	if(buff_size < decode_size)
 		return 0;
 
-	if(pkt->header.B0.sync == PACKET_SYNC_BYTE) {
-		switch(pkt->header.B1.type) {
+	if(pkt->header.sync == PACKET_SYNC_BYTE) {
+		switch(pkt->header.type) {
 			case PACKET_TYPE_BROADCAST:
 				if(blt_decode_broadcast(
 					&ecg_buffer[decode_size],
 					buff_size-decode_size,
 					broadcast,
+					&consumed) == 0) { // skip header
+					return (decode_size+consumed);
+				}else{
+					return 0;
+				}
+			break;
+			
+			case PACKET_TYPE_ARRHY_INFO:
+				if(blt_decode_arrhy(
+					&ecg_buffer[decode_size],
+					buff_size-decode_size,
+					arrhy,
 					&consumed) == 0) { // skip header
 					return (decode_size+consumed);
 				}else{
@@ -466,10 +555,9 @@ int blt_ecg_decode(unsigned char *buff, int buff_size)
 					return 0;
 				}
 			break;
-			case PACKET_TYPE_ARRHY_INFO:
-			break;
 			
 			case PACKET_TYPE_SLAVE_TO_MASTER_SETTINGS:
+			case PACKET_TYPE_MASTER_TO_SLAVE_SETTINGS:
 				//process with config decode
 				if(blt_decode_config(
 					&ecg_buffer[decode_size],
@@ -480,9 +568,6 @@ int blt_ecg_decode(unsigned char *buff, int buff_size)
 				}else{
 					return 0;
 				}
-			break;
-			
-			case PACKET_TYPE_MASTER_TO_SLAVE_SETTINGS:
 			break;
 			
 			case PACKET_TYPE_COMMAND_RESPONSE:

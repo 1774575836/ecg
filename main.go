@@ -62,30 +62,31 @@ func main() {
 		fmt.Println("")
 		time.Sleep(time.Second)
 	}
-	for{
+
+	for {
 		time.Sleep(time.Second)
 	}
-/*
-	totalPackets := 0
-	var decodeBuffer []byte
-	for {
-		fmt.Println("read from UDP 8001")
-		data := make([]byte, 1024)
-		readSize, remoteAddr, err := udpConn.ReadFromUDP(data)
-		if err != nil {
-			fmt.Println("Read from UDP failed!", err)
-			continue
-		}
-		totalPackets++
-		fmt.Println(data[:readSize])
-		decodeBuffer = append(decodeBuffer, data[:readSize]...)
-		fmt.Println(len(decodeBuffer), cap(decodeBuffer))
-		fmt.Println("Recv packet#:", totalPackets, "Length:", readSize, "From:", remoteAddr)
-		//fmt.Println(data[:readSize])
-		if ret := C.ecg_decode((*C.uchar)(unsafe.Pointer(&decodeBuffer[0])), C.int(readSize)); ret > 0 {
-			decodeBuffer = decodeBuffer[ret:]
+	/*
+		totalPackets := 0
+		var decodeBuffer []byte
+		for {
+			fmt.Println("read from UDP 8001")
+			data := make([]byte, 1024)
+			readSize, remoteAddr, err := udpConn.ReadFromUDP(data)
+			if err != nil {
+				fmt.Println("Read from UDP failed!", err)
+				continue
+			}
+			totalPackets++
+			fmt.Println(data[:readSize])
+			decodeBuffer = append(decodeBuffer, data[:readSize]...)
 			fmt.Println(len(decodeBuffer), cap(decodeBuffer))
+			fmt.Println("Recv packet#:", totalPackets, "Length:", readSize, "From:", remoteAddr)
+			//fmt.Println(data[:readSize])
+			if ret := C.ecg_decode((*C.uchar)(unsafe.Pointer(&decodeBuffer[0])), C.int(readSize)); ret > 0 {
+				decodeBuffer = decodeBuffer[ret:]
+				fmt.Println(len(decodeBuffer), cap(decodeBuffer))
+			}
 		}
-	}
 	*/
 }

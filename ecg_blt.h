@@ -19,30 +19,57 @@ PACKET_TYPE_MASTER_TO_SLAVE_SETTINGS = 0xD5,
 PACKET_TYPE_COMMAND_RESPONSE = 0xDA,
 };
 
+enum{
+	MODULE_TEMP1 = 0xC1,
+	MODULE_TEMP2 = 0xC2,
+	MODULE_TEMP3 = 0xC3,
+	MODULE_TEMP4 = 0xC4,
+	MODULE_TEMP5 = 0xC5,
+	MODULE_TEMP6 = 0xC6,
+	MODULE_TEMP7 = 0xC7,
+	MODULE_TEMP8 = 0xC8,
+	//SPACE
+	MODULE_MONITOR_CONFIG = 0xCD,
+	MODULE_PATIANT = 0xCE,
+	MODULE_CONFIG = 0xCF,
+	//SPACE
+	MODULE_ICG = 0xE0,
+	MODULE_IBP1 = 0xE1,
+	MODULE_IBP2 = 0xE2,
+	MODULE_IBP3 = 0xE3,
+	MODULE_IBP4 = 0xE4,
+	MODULE_IBP5 = 0xE5,
+	MODULE_IBP6 = 0xE6,
+	MODULE_IBP7 = 0xE7,
+	MODULE_IBP8 = 0xE8,
+	//SPACE
+	MODULE_SETTINGS = 0xF3, // used in 3.3.13, but not defined in 1.4
+	MODULE_CO2_1 = 0xF4,
+	MODULE_CO = 0xF5,
+	MODULE_GAS = 0xF6,
+	MODULE_CO2_2 = 0xF7,
+	MODULE_RESP = 0xF8,
+	MODULE_PULSE = 0xF9,
+	MODULE_SPO2 = 0xFa,
+	MODULE_NIBP = 0xFB,
+	MODULE_ECG12 = 0xFC,
+	MODULE_ECG5 = 0xFD,
+	MODULE_ECG3 = 0xFE,
+};
+
 #define PKT_HEADER_SIZE (5)
 typedef struct{
-    union{
-        unsigned char B0;
-        unsigned char sync; // always == 0xFF
-    }B0;
-    union{
-        unsigned char B1;
-        unsigned char type;
-    }B1;
-    union{
-        unsigned char B2;
-        unsigned char source;
-    }B2;
-    union{
-        unsigned char B3;
-        unsigned char dest;
-    }B3;
-    union{
-        unsigned char B4;
-        unsigned char _reserved;
-    }B4;
+	unsigned char sync; // always == 0xFF
+	unsigned char type;
+	unsigned char source;
+	unsigned char dest;
+	unsigned char _reserved;
 }packet_header_t;
 
+
+
+
+/********command packet(type 0xDA) definition*************/
 enum{
 COMMAND_DIRECTION_NULL,
 COMMAND_DIRECTION_SLAVE_TO_MASTER,
@@ -108,7 +135,11 @@ typedef struct{
     unsigned char command_l;
     command_data_t data;
 }command_packet_t;
+/********End of command packet(type 0xDA) definition*************/
 
+
+
+/********broadcast packet(type 0xD0) definition*************/
 typedef struct{
 //Byte5
     unsigned int ECG3       :1;
@@ -157,28 +188,11 @@ typedef struct{
     unsigned char       status1;
     unsigned char       status2;
 }broadcast_packet_t;
+/********end broadcast packet(type 0xD0) definition*************/
 
 
-enum{
-	CONFIG_TYPE_ECG3 = 0xFE,
-	CONFIG_TYPE_ECG5 = 0xFD,
-	CONFIG_TYPE_ECG12 = 0xFC,
-	CONFIG_TYPE_NIBP = 0xFB,
-	CONFIG_TYPE_SPO2 = 0xFA,
-	CONFIG_TYPE_PULSE = 0xF9,
-	CONFIG_TYPE_RESP = 0xF8,
-	CONFIG_TYPE_MONITOR = 0xF3,
-	CONFIG_TYPE_TEMP1 = 0xC1,
-	CONFIG_TYPE_TEMP2 = 0xC2,
-	CONFIG_TYPE_TEMP3 = 0xC3,
-	CONFIG_TYPE_TEMP4 = 0xC4,
-	CONFIG_TYPE_TEMP5 = 0xC5,
-	CONFIG_TYPE_TEMP6 = 0xC6,
-	CONFIG_TYPE_TEMP7 = 0xC7,
-	CONFIG_TYPE_TEMP8 = 0xC8,
-	CONFIG_TYPE_PATIANT = 0xCE,
-};
 
+/********data packet(type 0xD1) definition*************/
 typedef struct{
     //B0
     unsigned int R:1;
@@ -384,8 +398,10 @@ typedef struct{
         ECG12_data_t ecg12;
     }data;
 }packet_data_t;
+/********End of data packet(type 0xD1) definition*************/
 
 
+/********Config packet(type 0xD4/0xD5) definition*************/
 typedef struct{
 	unsigned char type; //==0xFD or 0xFE or 0xFC
 	unsigned char length_h;
@@ -412,7 +428,6 @@ typedef struct{
 	//B8
 	unsigned int alarm_high_level_4:4;
 	unsigned int alarm_low_level_4:4;
-	
 }ECG_config_t;
 
 typedef struct{
@@ -601,6 +616,37 @@ typedef struct{
 	unsigned char length_l;
 	unsigned char data[0];
 }config_packet_t;
+/********End of Config packet(type 0xD4/0xD5) definition*************/
+
+
+/********arrhythmia packet(type 0xD3) definition*************/
+enum{
+	ARRHY_NORMAL = 0x0,
+	ARRHY_ASYSTOLE,
+	ARRHY_VENT_FIB,
+	ARRHY_VENT_TACHY,
+	ARRHY_MULTIPLE_PVCS,
+	ARRHY_COUPLET,
+	ARRHY_PVCS_BIGEMINY,
+	ARRHY_PVCS_TRIGEMINY,
+	ARRHY_R_ON_T,
+	ARRHY_VPB,
+	ARRHY_TACHY,
+	ARRHY_BRADY,
+	ARRHY_MISSED_BEATS,
+	ARRHY_ST_EPRESS,
+	ARRHY_ST_ELEVATE,
+	ARRHY_PNP,
+	ARRHY_PNC,
+};
+
+typedef struct{
+	unsigned char length_h;
+	unsigned char length_l;
+	unsigned char code;
+}arrhy_packet_t;
+/********End of arrhythmia packet(type 0xD3) definition*************/
+
 
 typedef struct{
     packet_header_t     header;
